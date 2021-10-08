@@ -88,7 +88,6 @@ else ()
 	)
 endif ()
 
-find_package(frozen REQUIRED CONFIG)
 find_package(spdlog REQUIRED CONFIG)
 find_package(xbyak REQUIRED CONFIG)
 
@@ -150,7 +149,6 @@ target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
 		CommonLibSSE::CommonLibSSE
-		frozen::frozen
 		spdlog::spdlog
 		xbyak::xbyak
 )
