@@ -1,0 +1,14 @@
+{
+  "name": "simpleactivateskse",
+  "version-string": "1.0.0",
+  "description": "SKSE plugin that streamlines activate prompts",
+  "homepage": "",
+  "license": "MIT",
+  "dependencies": [
+    "boost-stl-interfaces",
+    "frozen",
+    "simpleini",
+    "spdlog",
+    "xbyak"
+  ]
+}
