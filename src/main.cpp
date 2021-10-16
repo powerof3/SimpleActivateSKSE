@@ -34,21 +34,25 @@ public:
 		get_bool_value(hideButton, "Main", "Hide Button", ";Hide activate button, eg. [E]");
 		get_bool_value(hideText, "Main", "Hide Activate Text", ";Hide activate text, eg. Take, Harvest, Steal");
 
-		get_bool_value(coloredSteal, "Steal/Pickpocket", "Show Indicator Using Name", ";Item/NPC names turn red (or custom color defined below).");
-		get_value(stealColor, "Steal/Pickpocket", "Custom Indicator Color", ";Color, in hex (default: red)");
+		get_bool_value(steal.useColoredName, "Steal/Pickpocket", "Show Indicator Using Name", ";Item/NPC names turn red (or custom color defined below).");
+		get_value(steal.nameColor, "Steal/Pickpocket", "Custom Indicator Color", ";Color, in hex (default: red)");
 
-		get_bool_value(coloredOwned, "Owned", "Show Indicator Using Name", ";Owned furniture name turns yellow (or custom color defined below).");
-		get_value(ownedColor, "Owned", "Custom Indicator Color", ";Color, in hex (default: yellow)");
+		get_bool_value(owned.useColoredName, "Owned", "Show Indicator Using Name", ";Owned furniture name turns yellow (or custom color defined below).");
+		get_value(owned.nameColor, "Owned", "Custom Indicator Color", ";Color, in hex (default: yellow)");
 
-		get_bool_value(hideLockTag, "Locked", "Hide Locked Tag", ";Hide locked status (eg. Apprentice, Adept, Master)");
-		get_value(lockTag, "Locked", "Custom Locked Tag", ";Set custom tag for all locked objects. Leave entry blank if you don't want to set it\n;No effect if Hide Lock Tag is true.");
+		get_bool_value(locked.hideTag, "Locked", "Hide Locked Tag", ";Hide locked status (eg. Apprentice, Adept, Master)");
+		get_value(locked.tag, "Locked", "Custom Locked Tag", ";Set custom tag for all locked objects. Leave entry blank if you don't want to set it\n;No effect if Hide Lock Tag is true.");
+		get_bool_value(locked.useColoredName, "Locked", "Show Indicator Using Name", ";Locked object names turn yellow (or custom color defined below).");
+		get_value(locked.nameColor, "Locked", "Custom Indicator Color", ";Color, in hex (default: yellow)");
 
-		get_bool_value(hideEmptyTag, "Empty", "Hide Empty Tag", ";Hide empty container state");
-		get_value(emptyTag, "Empty", "Custom Empty Tag", ";Set custom tag for empty objects (eg. [Empty]). Leave entry blank if you don't want to set it\n;No effect if Hide Empty Tag is true.");
+		get_bool_value(empty.hideTag, "Empty", "Hide Empty Tag", ";Hide empty container state");
+		get_value(empty.tag, "Empty", "Custom Empty Tag", ";Set custom tag for empty objects (eg. [Empty]). Leave entry blank if you don't want to set it\n;No effect if Hide Empty Tag is true.");
+		get_bool_value(empty.useColoredName, "Empty", "Show Indicator Using Name", ";Empty container names turn grey (or custom color defined below).");
+		get_value(empty.nameColor, "Empty", "Custom Indicator Color", ";Color, in hex (default: grey)");
 
-		usesColoredName = coloredSteal || coloredOwned;
-		hidesTag = hideLockTag || hideEmptyTag;
-		usesCustomTag = !lockTag.empty() || !emptyTag.empty();
+		usesColoredName = steal.useColoredName || owned.useColoredName || locked.useColoredName || empty.useColoredName;
+		hidesTag = locked.hideTag || empty.hideTag;
+		usesCustomTag = !locked.tag.empty() || !empty.tag.empty();
 
 		ini.SaveFile(path);
 
@@ -63,17 +67,33 @@ public:
 	bool hideButton{ true };
 	bool hideText{ true };
 
-	bool coloredSteal{ true };
-	std::string stealColor{ "#FF0000" };
+	struct
+	{
+		bool useColoredName{ true };
+		std::string nameColor{ "#FF0000" };
+	} steal;
 
-	bool coloredOwned{ true };
-	std::string ownedColor{ "#FFFF00" };
+	struct
+	{
+		bool useColoredName{ true };
+		std::string nameColor{ "#FFFF00" };
+	} owned;
 
-	bool hideLockTag{ false };
-	std::string lockTag{ "<img src='DiamondMarker' width='10' height='15' align='baseline' vspace='5'>Locked" };
+	struct
+	{
+		bool hideTag{ false };
+		std::string tag{ "<img src='DiamondMarker' width='10' height='15' align='baseline' vspace='5'>Locked" };
+		bool useColoredName{ false };
+		std::string nameColor{ "#FFFF00" };
+	} locked;
 
-	bool hideEmptyTag{ false };
-	std::string emptyTag{};
+	struct
+	{
+		bool hideTag{ false };
+		std::string tag{};
+		bool useColoredName{ false };
+		std::string nameColor{ "#808080" };
+	} empty;
 
 	bool usesColoredName{ false };
 	bool hidesTag{ false };
@@ -115,6 +135,11 @@ namespace UI
 			return base && base->GetGoldValue() != -1;
 		};
 
+		static bool is_empty(const RE::TESObjectREFRPtr& a_object)
+		{
+			return a_object && is_empty_impl(a_object.get(), false, false) == 0;
+		}
+
 		static bool is_furniture(const RE::TESObjectREFRPtr& a_object)
 		{
 			auto base = a_object ? a_object->GetBaseObject() : nullptr;
@@ -137,6 +162,14 @@ namespace UI
 				return tag;
 			}
 			return std::string();
+		};
+
+	private:
+		static std::int32_t is_empty_impl(const RE::TESObjectREFR* a_object, bool a_useDataHandlerInventory, bool a_unk03)
+		{
+			using func_t = decltype(&is_empty_impl);
+			REL::Relocation<func_t> func{ REL::ID(19274) };
+			return func(a_object, a_useDataHandlerInventory, a_unk03);
 		};
 	};
 
@@ -163,17 +196,24 @@ namespace UI
 					const auto crossHairRef = data->crossHairRef.get();
 
 					if (settings->usesColoredName) {
-						if (auto splitText = string::split(text, "\n"); splitText.size() > 1) {
-							if (detail::is_furniture(crossHairRef) && settings->coloredOwned) {
-								auto ownedTag = detail::get_owned_tag();
-								if (text.find(ownedTag) != std::string::npos) {
+						auto splitText = string::split(text, "\n");
+						if (const auto splitSize = splitText.size(); splitSize > 1) {
+							std::string nameColor;
+							if (detail::is_furniture(crossHairRef) && settings->owned.useColoredName) {
+								if (auto ownedTag = detail::get_owned_tag(); text.find(ownedTag) != std::string::npos) {
 									string::replace_first_instance(splitText[kName], ownedTag, "");
 
-									splitText[kName] = fontBegin + settings->ownedColor + fontBeginEnd + splitText[kName] + fontEnd;
-									text = string::join(splitText, "\n");
+									nameColor = settings->owned.nameColor;
 								}
-							} else if (text.find("#FF0000") != std::string::npos && settings->coloredSteal) {
-								splitText[kName] = fontBegin + settings->stealColor + fontBeginEnd + splitText[kName] + fontEnd;
+							} else if (text.find("#FF0000") != std::string::npos && settings->steal.useColoredName) {
+								nameColor = settings->steal.nameColor;
+							} else if (detail::is_empty(crossHairRef) && settings->empty.useColoredName) {
+								nameColor = settings->empty.nameColor;
+							} else if (detail::is_locked(crossHairRef) && settings->locked.useColoredName) {
+								nameColor = settings->locked.nameColor;
+							}
+							if (!nameColor.empty()) {
+								splitText[kName] = fontBegin + nameColor + fontBeginEnd + splitText[kName] + fontEnd;
 								text = string::join(splitText, "\n");
 							}
 						}
@@ -198,20 +238,20 @@ namespace UI
 						if (string::split(origText, "\n").size() > 2) {
 							auto splitText = string::split(text, "\n");
 
-							if (detail::is_locked(crossHairRef)) {
-								if (settings->hideLockTag) {
+							if (detail::is_empty(crossHairRef)) {
+								if (settings->empty.hideTag) {
 									splitText.pop_back();
 									text = string::join(splitText, "\n");
-								} else if (!settings->lockTag.empty()) {
-									splitText.back() = settings->lockTag;
+								} else if (!settings->empty.tag.empty()) {
+									splitText.back() = settings->empty.tag;
 									text = string::join(splitText, "\n");
 								}
-							} else {
-								if (settings->hideEmptyTag) {
+							} else if (detail::is_locked(crossHairRef)) {
+								if (settings->locked.hideTag) {
 									splitText.pop_back();
 									text = string::join(splitText, "\n");
-								} else if (!settings->emptyTag.empty()) {
-									splitText.back() = settings->emptyTag;
+								} else if (!settings->locked.tag.empty()) {
+									splitText.back() = settings->locked.tag;
 									text = string::join(splitText, "\n");
 								}
 							}

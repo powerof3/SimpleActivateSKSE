@@ -6,10 +6,6 @@
 #include "RE/Skyrim.h"
 #include "SKSE/SKSE.h"
 
-#include <compare>
-#include <frozen/map.h>
-#include <frozen/set.h>
-#include <frozen/unordered_map.h>
 #include <SimpleIni.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <xbyak/xbyak.h>
