@@ -28,7 +28,7 @@ public:
 
 		get_bool_value(hideNPCs, "Override", "Hide All NPCs", ";Hide all NPC names and activation prompts (including steal/pickpocket indicator)");
 		get_bool_value(hideDoors, "Override", "Hide All Doors", ";Hide all door names and activation prompts.");
-		get_bool_value(hideDoors, "Override", "Hide All Furniture", ";Hide all furniture names and activation prompts (included owned indicator).");
+		get_bool_value(hideFurniture, "Override", "Hide All Furniture", ";Hide all furniture names and activation prompts (included owned indicator).");
 		get_bool_value(hideItems, "Override", "Hide All Items", ";Hide all item names and activation prompts (including steal/pickpocket/item value indicator)");
 
 		get_bool_value(hideButton, "Main", "Hide Button", ";Hide activate button, eg. [E]");
