@@ -275,9 +275,9 @@ namespace UI
 
 	void Install()
 	{
-		REL::Relocation<std::uintptr_t> target{ REL::ID(39535) };
+		REL::Relocation<std::uintptr_t> target{ REL::ID(39535), 0x289 };
 
-		stl::write_thunk_call<UpdatePlayerCrosshairText>(target.address() + 0x289);
+		stl::write_thunk_call<UpdatePlayerCrosshairText>(target.address());
 	}
 }
 
