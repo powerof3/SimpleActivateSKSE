@@ -91,7 +91,7 @@ private:
 	static std::int32_t is_empty_impl(const RE::TESObjectREFR* a_object, bool a_useDataHandlerInventory, bool a_unk03)
 	{
 		using func_t = decltype(&is_empty_impl);
-		REL::Relocation<func_t> func{ REL::ID(19700) };
+		REL::Relocation<func_t> func{ REL::ID(19274) };
 		return func(a_object, a_useDataHandlerInventory, a_unk03);
 	};
 };

@@ -116,7 +116,6 @@ namespace UI
 	void Install()
 	{
 		REL::Relocation<std::uintptr_t> target{ REL::ID(39535), 0x289 };
-
 		stl::write_thunk_call<UpdatePlayerCrosshairText>(target.address());
 	}
 }
@@ -125,7 +124,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 {
 	auto path = logger::log_directory();
 	if (!path) {
-		stl::report_and_fail("Failed to find standard logging directory"sv);
+		return false;
 	}
 
 	*path /= fmt::format(FMT_STRING("{}.log"), Version::PROJECT);
