@@ -15,12 +15,12 @@
 namespace logger = SKSE::log;
 namespace string = SKSE::stl::string;
 namespace numeric = SKSE::stl::numeric;
+
 using namespace std::literals;
 
 namespace stl
 {
-	using SKSE::stl::to_underlying;
-	using SKSE::stl::adjust_pointer;
+	using namespace SKSE::stl;
 
 	template <class T>
 	void write_thunk_call(std::uintptr_t a_src)
