@@ -11,35 +11,35 @@ namespace UI
 
 	struct detail
 	{
-		static bool has_value(const RE::TESObjectREFRPtr& a_object)
+		static bool has_gold_value(const RE::TESObjectREFRPtr& a_object)
 		{
-            const auto base = a_object ? a_object->GetBaseObject() : nullptr;
+			const auto base = a_object ? a_object->GetBaseObject() : nullptr;
 			return base && base->GetGoldValue() != -1;
 		}
 
-        static std::string get_owned_tag()
+		static std::string get_owned_tag()
 		{
-            const auto gmst = RE::GameSettingCollection::GetSingleton();
-            if (const auto ownedTag = gmst ? gmst->GetSetting("sOwned") : nullptr) {
+			const auto gmst = RE::GameSettingCollection::GetSingleton();
+			if (const auto ownedTag = gmst ? gmst->GetSetting("sOwned") : nullptr) {
 				std::string tag{ " (" };
 				tag.append(ownedTag->GetString()).append(")");
 				return tag;
 			}
 			return {};
 		}
-    };
+	};
 
 	struct UpdatePlayerCrosshairText
 	{
 		static void thunk(RE::UIMessageQueue* a_this, const RE::BSFixedString& a_menuName, RE::UI_MESSAGE_TYPE a_type, RE::IUIMessageData* a_data)
 		{
-			if (const auto data = a_data ?
-                                      static_cast<RE::HUDData*>(a_data) :
-                                      nullptr;
-				data) {
-                const auto settings = Settings::GetSingleton();
+			const auto data = a_data ? static_cast<RE::HUDData*>(a_data) : nullptr;
+			const auto crossHairRef = data ? data->crossHairRef.get() : RE::TESObjectREFRPtr();
 
-                if (const auto textSettings = settings->GetText(data->crossHairRef.get())) {
+			if (data && crossHairRef) {
+				const auto settings = Settings::GetSingleton();
+
+				if (const auto textSettings = settings->GetText(crossHairRef); textSettings) {
 					if (textSettings->hideAll) {
 						data->type = RE::HUDData::Type::kUnk0;
 					} else {
@@ -47,24 +47,23 @@ namespace UI
 							data->type = RE::HUDData::Type::kActivateNoLabel;
 						}
 						const std::string origText = data->text.c_str();
-						std::string text = origText;
+						std::string text = data->text.c_str();
 
-						const auto crossHairRef = data->crossHairRef.get();
+						if (const auto colorSettings = settings->GetColor(crossHairRef); colorSettings && colorSettings->useColoredName) {
+							if (auto splitText = string::split(text, "\n"); splitText.size() > 1 && !colorSettings->nameColor.empty()) {
+								string::replace_first_instance(splitText[kName], detail::get_owned_tag(), "");
 
-                        if (const auto colorSettings = settings->GetColor(crossHairRef, text); colorSettings->useColoredName) {
-							auto splitText = string::split(text, "\n");
-							if (const auto splitSize = splitText.size(); splitSize > 1) {
-                                if (!colorSettings->nameColor.empty()) {
-									string::replace_first_instance(splitText[kName], detail::get_owned_tag(), "");
+								std::string coloredName{ colored_font };
+								string::replace_first_instance(coloredName, "rgba", colorSettings->nameColor);
+								string::replace_first_instance(coloredName, "text", splitText[kName]);
+								splitText[kName] = coloredName;
 
-									splitText[kName] = fontBegin + colorSettings->nameColor + fontBeginEnd + splitText[kName] + fontEnd;
-									text = string::join(splitText, "\n");
-								}
+								text = string::join(splitText, "\n");
 							}
 						}
 
 						if (textSettings->hideText) {
-                            const bool hasValue = detail::has_value(crossHairRef);
+							const bool hasValue = detail::has_gold_value(crossHairRef);
 							if (auto splitText = string::split(text, "\n"); splitText.size() > 2) {
 								if (hasValue && textSettings->hideButton) {
 									splitText[kPrompt] = "\n";
@@ -78,7 +77,7 @@ namespace UI
 							}
 						}
 
-                        if (const auto tag = settings->GetTag(crossHairRef)) {
+						if (const auto tag = settings->GetTag(crossHairRef); tag) {
 							if (string::split(origText, "\n").size() > 2) {
 								auto splitText = string::split(text, "\n");
 								if (tag->hideTag) {
@@ -100,18 +99,16 @@ namespace UI
 
 			func(a_this, a_menuName, a_type, a_data);
 		}
-		static inline REL::Relocation<decltype(&thunk)> func;
+		static inline REL::Relocation<decltype(thunk)> func;
 
-		static inline constexpr const char* fontBegin{ "<font color='" };
-		static inline constexpr const char* fontBeginEnd{ "'>" };
-		static inline constexpr const char* fontEnd{ "</font>" };
+		static inline constexpr auto colored_font{ R"(<font color='rgba'>text</font>)"sv };
 	};
 
 	void Install()
 	{
 		SKSE::AllocTrampoline(14);
 
-	    REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(39535, 40621), OFFSET(0x289,0x280) };
+		REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(39535, 40621), OFFSET(0x289, 0x280) };
 		stl::write_thunk_call<UpdatePlayerCrosshairText>(target.address());
 	}
 }

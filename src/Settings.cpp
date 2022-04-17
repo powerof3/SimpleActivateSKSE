@@ -20,29 +20,34 @@ bool Settings::LoadSettings()
 		}
 	};
 
+	//delete and recreate sections
 	ini.Delete("NPCs", nullptr, true);
 	ini.Delete("Doors", nullptr, true);
 	ini.Delete("Furniture", nullptr, true);
 	ini.Delete("Flora", nullptr, true);
 	ini.Delete("Items", nullptr, true);
+	ini.Delete("Steal/Pickpocket", nullptr, true);
+	ini.Delete("Owned", nullptr, true);
+	ini.Delete("Locked", nullptr, true);
+	ini.Delete("Empty", nullptr, true);
 
 	get_value(npc.hideAll, "Hide All Text", "NPCs", ";Hide all names and activation prompts");
-	get_value(doors.hideAll, "Hide All Text", "Doors", ";");
-	get_value(furniture.hideAll, "Hide All Text", "Furniture", ";");
-	get_value(flora.hideAll, "Hide All Text", "Flora", ";");
-	get_value(items.hideAll, "Hide All Text", "Items", ";");
+	get_value(doors.hideAll, "Hide All Text", "Doors", nullptr);
+	get_value(furniture.hideAll, "Hide All Text", "Furniture", nullptr);
+	get_value(flora.hideAll, "Hide All Text", "Flora", nullptr);
+	get_value(items.hideAll, "Hide All Text", "Items", nullptr);
 
     get_value(npc.hideButton, "Hide Button", "NPCs", ";Hide activate button, eg. [E]");
-	get_value(doors.hideButton, "Hide Button", "Doors", ";");
-	get_value(furniture.hideButton, "Hide Button", "Furniture", ";");
-	get_value(flora.hideButton, "Hide Button", "Flora", ";");
-	get_value(items.hideButton, "Hide Button", "Items", ";");
+	get_value(doors.hideButton, "Hide Button", "Doors", nullptr);
+	get_value(furniture.hideButton, "Hide Button", "Furniture", nullptr);
+	get_value(flora.hideButton, "Hide Button", "Flora", nullptr);
+	get_value(items.hideButton, "Hide Button", "Items", nullptr);
 
-    get_value(npc.hideText, "Hide Text", "NPCs", ";Hide activate text, eg. Talk, Pickpocket");
-	get_value(doors.hideText, "Hide Text", "Doors", ";eg. Open");
-	get_value(furniture.hideText, "Hide Text", "Furniture", ";eg. Sleep");
-	get_value(flora.hideText, "Hide Text", "Flora", ";eg. Harvest");
-	get_value(items.hideText, "Hide Text", "Items", ";eg. Take, Steal");
+    get_value(npc.hideText, "Hide Text", "NPCs", ";Hide activate text, eg. Talk, Pickpocket, Harvest, Sleep");
+	get_value(doors.hideText, "Hide Text", "Doors", nullptr);
+	get_value(furniture.hideText, "Hide Text", "Furniture", nullptr);
+	get_value(flora.hideText, "Hide Text", "Flora", nullptr);
+	get_value(items.hideText, "Hide Text", "Items", nullptr);
 
 	get_value(steal.useColoredName, "Steal/Pickpocket", "Show Indicator Using Name", ";Item/NPC names turn red (or custom color defined below).");
 	get_value(steal.nameColor, "Steal/Pickpocket", "Custom Indicator Color", ";Color, in hex (default: red)");
@@ -67,7 +72,7 @@ bool Settings::LoadSettings()
 
 std::optional<Settings::Text> Settings::GetText(const RE::TESObjectREFRPtr& a_object)
 {
-	if (const auto base = a_object ? a_object->GetBaseObject() : nullptr) {
+	if (const auto base = a_object->GetBaseObject()) {
 		switch (base->GetFormType()) {
 		case RE::FormType::NPC:
 			return npc;
@@ -85,30 +90,31 @@ std::optional<Settings::Text> Settings::GetText(const RE::TESObjectREFRPtr& a_ob
 	return std::nullopt;
 }
 
-std::optional<Settings::Color> Settings::GetColor(const RE::TESObjectREFRPtr& a_object, const std::string& a_text)
+std::optional<Settings::Color> Settings::GetColor(const RE::TESObjectREFRPtr& a_object)
 {
 	if (detail::is_owned(a_object)) {
-		return owned;
+	    return owned;
 	}
-	if (a_text.find("#FF0000") != std::string::npos) {
-		return steal;
+	if (a_object->IsCrimeToActivate()) {
+	    return steal;
 	}
 	if (detail::is_empty(a_object)) {
-		return empty.color;
+	    return empty.color;
 	}
-	if (detail::is_locked(a_object)) {
-		return locked.color;
+	if (a_object->IsLocked()) {
+	    return locked.color;
 	}
-	return std::nullopt;
-};
+
+    return std::nullopt;
+}
 
 std::optional<Settings::Tag> Settings::GetTag(const RE::TESObjectREFRPtr& a_object)
 {
 	if (detail::is_empty(a_object)) {
 		return empty;
 	}
-	if (detail::is_locked(a_object)) {
+	if (a_object->IsLocked()) {
 		return locked;
 	}
 	return std::nullopt;
-};
+}
