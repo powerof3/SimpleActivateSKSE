@@ -1,6 +1,6 @@
 {
   "name": "simpleactivateskse",
-  "version-string": "1.2.0",
+  "version-string": "1.3.0",
   "description": "SKSE plugin that streamlines activate prompts",
   "homepage": "",
   "license": "MIT",
@@ -10,5 +10,12 @@
     "simpleini",
     "spdlog",
     "xbyak"
+  ],
+  "builtin-baseline": "bd1ef2df46303989eeb048eb7aa9b816aa46365e",
+  "overrides": [
+    {
+      "name": "fmt",
+      "version": "8.0.1"
+    }
   ]
 }

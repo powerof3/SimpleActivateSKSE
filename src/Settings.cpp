@@ -1,11 +1,5 @@
 #include "Settings.h"
 
-Settings* Settings::GetSingleton()
-{
-	static Settings singleton;
-	return std::addressof(singleton);
-}
-
 bool Settings::LoadSettings()
 {
 	constexpr auto path = L"Data/SKSE/Plugins/po3_SimpleActivateSKSE.ini";
@@ -15,91 +9,65 @@ bool Settings::LoadSettings()
 
 	ini.LoadFile(path);
 
-	const auto get_bool_value = [&](bool& a_value, const char* a_section, const char* a_key, const char* a_comment) {
-		a_value = ini.GetBoolValue(a_section, a_key, a_value);
-		ini.SetBoolValue(a_section, a_key, a_value, a_comment);
+	const auto get_value = [&]<class T>(T& a_value, const char* a_section, const char* a_key, const char* a_comment)
+	{
+		if constexpr (std::is_same_v<bool, T>) {
+			a_value = ini.GetBoolValue(a_section, a_key, a_value);
+			ini.SetBoolValue(a_section, a_key, a_value, a_comment);
+		} else {
+			a_value = ini.GetValue(a_section, a_key, a_value.c_str());
+			ini.SetValue(a_section, a_key, a_value.c_str(), a_comment);
+		}
 	};
 
-	const auto get_value = [&](std::string& a_value, const char* a_section, const char* a_key, const char* a_comment) {
-		a_value = ini.GetValue(a_section, a_key, a_value.c_str());
-		ini.SetValue(a_section, a_key, a_value.c_str(), a_comment);
-	};
+	ini.Delete("NPCs", nullptr, true);
+	ini.Delete("Doors", nullptr, true);
+	ini.Delete("Furniture", nullptr, true);
+	ini.Delete("Flora", nullptr, true);
+	ini.Delete("Items", nullptr, true);
 
-	get_bool_value(npc.hideAll, "NPCs", "Hide All Text", ";Hide all NPC names and activation prompts");
-	get_bool_value(npc.hideButton, "NPCs", "Hide Button", ";Hide activate button, eg. [E]");
-	get_bool_value(npc.hideText, "NPCs", "Hide Text", ";Hide activate text, eg. Talk, Pickpocket");
+	get_value(npc.hideAll, "Hide All Text", "NPCs", ";Hide all names and activation prompts");
+	get_value(doors.hideAll, "Hide All Text", "Doors", ";");
+	get_value(furniture.hideAll, "Hide All Text", "Furniture", ";");
+	get_value(flora.hideAll, "Hide All Text", "Flora", ";");
+	get_value(items.hideAll, "Hide All Text", "Items", ";");
 
-	get_bool_value(doors.hideAll, "Doors", "Hide All Text", ";Hide all door names and activation prompts");
-	get_bool_value(doors.hideButton, "Doors", "Hide Button", ";Hide activate button, eg. [E]");
-	get_bool_value(doors.hideText, "Doors", "Hide Text", ";Hide activate text, eg. Open");
+    get_value(npc.hideButton, "Hide Button", "NPCs", ";Hide activate button, eg. [E]");
+	get_value(doors.hideButton, "Hide Button", "Doors", ";");
+	get_value(furniture.hideButton, "Hide Button", "Furniture", ";");
+	get_value(flora.hideButton, "Hide Button", "Flora", ";");
+	get_value(items.hideButton, "Hide Button", "Items", ";");
 
-	get_bool_value(furniture.hideAll, "Furniture", "Hide All Text", ";Hide all furniture names and activation prompts");
-	get_bool_value(furniture.hideButton, "Furniture", "Hide Button", ";Hide activate button, eg. [E]");
-	get_bool_value(furniture.hideText, "Furniture", "Hide Text", ";Hide activate text, eg. Sleep");
+    get_value(npc.hideText, "Hide Text", "NPCs", ";Hide activate text, eg. Talk, Pickpocket");
+	get_value(doors.hideText, "Hide Text", "Doors", ";eg. Open");
+	get_value(furniture.hideText, "Hide Text", "Furniture", ";eg. Sleep");
+	get_value(flora.hideText, "Hide Text", "Flora", ";eg. Harvest");
+	get_value(items.hideText, "Hide Text", "Items", ";eg. Take, Steal");
 
-	get_bool_value(flora.hideAll, "Flora", "Hide All Text", ";Hide all harvestable names and activation prompts");
-	get_bool_value(flora.hideButton, "Flora", "Hide Button", ";Hide activate button, eg. [E]");
-	get_bool_value(flora.hideText, "Flora", "Hide Text", ";Hide activate text, eg. Harvest");
-	
-	get_bool_value(items.hideAll, "Items", "Hide All Text", ";Hide all item names and activation prompts");
-	get_bool_value(items.hideButton, "Items", "Hide Button", ";Hide activate button, eg. [E]");
-	get_bool_value(items.hideText, "Items", "Hide Text", ";Hide activate text, eg. Take, Steal");
-
-	get_bool_value(steal.useColoredName, "Steal/Pickpocket", "Show Indicator Using Name", ";Item/NPC names turn red (or custom color defined below).");
+	get_value(steal.useColoredName, "Steal/Pickpocket", "Show Indicator Using Name", ";Item/NPC names turn red (or custom color defined below).");
 	get_value(steal.nameColor, "Steal/Pickpocket", "Custom Indicator Color", ";Color, in hex (default: red)");
 
-	get_bool_value(owned.useColoredName, "Owned", "Show Indicator Using Name", ";Owned furniture name turns yellow (or custom color defined below).");
+	get_value(owned.useColoredName, "Owned", "Show Indicator Using Name", ";Owned furniture name turns yellow (or custom color defined below).");
 	get_value(owned.nameColor, "Owned", "Custom Indicator Color", ";Color, in hex (default: yellow)");
 
-	get_bool_value(locked.hideTag, "Locked", "Hide Locked Tag", ";Hide locked status (eg. Apprentice, Adept, Master)");
+	get_value(locked.hideTag, "Locked", "Hide Locked Tag", ";Hide locked status (eg. Apprentice, Adept, Master)");
 	get_value(locked.tag, "Locked", "Custom Locked Tag", ";Set custom tag for all locked objects. Leave entry blank if you don't want to set it\n;No effect if Hide Lock Tag is true.");
-	get_bool_value(locked.color.useColoredName, "Locked", "Show Indicator Using Name", ";Locked object names turn yellow (or custom color defined below).");
+	get_value(locked.color.useColoredName, "Locked", "Show Indicator Using Name", ";Locked object names turn yellow (or custom color defined below).");
 	get_value(locked.color.nameColor, "Locked", "Custom Indicator Color", ";Color, in hex (default: yellow)");
 
-	get_bool_value(empty.hideTag, "Empty", "Hide Empty Tag", ";Hide empty container state");
+	get_value(empty.hideTag, "Empty", "Hide Empty Tag", ";Hide empty container state");
 	get_value(empty.tag, "Empty", "Custom Empty Tag", ";Set custom tag for empty objects (eg. [Empty]). Leave entry blank if you don't want to set it\n;No effect if Hide Empty Tag is true.");
-	get_bool_value(empty.color.useColoredName, "Empty", "Show Indicator Using Name", ";Empty container names turn grey (or custom color defined below).");
+	get_value(empty.color.useColoredName, "Empty", "Show Indicator Using Name", ";Empty container names turn grey (or custom color defined below).");
 	get_value(empty.color.nameColor, "Empty", "Custom Indicator Color", ";Color, in hex (default: grey)");
 
-	ini.SaveFile(path);
+	(void)ini.SaveFile(path);
 
 	return true;
 }
 
-struct detail
-{
-	static bool is_empty(const RE::TESObjectREFRPtr& a_object)
-	{
-		return a_object && is_empty_impl(a_object.get(), false, false) == 0;
-	}
-
-	static bool is_owned(const RE::TESObjectREFRPtr& a_object)
-	{
-		auto base = a_object ? a_object->GetBaseObject() : nullptr;
-		if (base && base->Is(RE::FormType::Furniture)) {
-			return a_object->GetOwner() && a_object->IsOffLimits();
-		}
-		return false;
-	}
-
-	static bool is_locked(const RE::TESObjectREFRPtr& a_object)
-	{
-		return a_object && a_object->IsLocked();
-	};
-
-private:
-	static std::int32_t is_empty_impl(const RE::TESObjectREFR* a_object, bool a_useDataHandlerInventory, bool a_unk03)
-	{
-		using func_t = decltype(&is_empty_impl);
-		REL::Relocation<func_t> func{ REL::ID(19274) };
-		return func(a_object, a_useDataHandlerInventory, a_unk03);
-	};
-};
-
 std::optional<Settings::Text> Settings::GetText(const RE::TESObjectREFRPtr& a_object)
 {
-	auto base = a_object ? a_object->GetBaseObject() : nullptr;
-	if (base) {
+	if (const auto base = a_object ? a_object->GetBaseObject() : nullptr) {
 		switch (base->GetFormType()) {
 		case RE::FormType::NPC:
 			return npc;
@@ -121,7 +89,7 @@ std::optional<Settings::Color> Settings::GetColor(const RE::TESObjectREFRPtr& a_
 {
 	if (detail::is_owned(a_object)) {
 		return owned;
-	} 	
+	}
 	if (a_text.find("#FF0000") != std::string::npos) {
 		return steal;
 	}
