@@ -36,7 +36,7 @@ public:
 		Color color;
 
 		explicit Tag(std::string a_tag, const std::string& a_color) :
-			hideTag(false),
+			hideTag(true),
 			tag(std::move(a_tag)),
 			color(a_color)
 		{}
