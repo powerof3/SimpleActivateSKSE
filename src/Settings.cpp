@@ -9,8 +9,7 @@ bool Settings::LoadSettings()
 
 	ini.LoadFile(path);
 
-	const auto get_value = [&]<class T>(T& a_value, const char* a_section, const char* a_key, const char* a_comment)
-	{
+	const auto get_value = [&]<class T>(T& a_value, const char* a_section, const char* a_key, const char* a_comment) {
 		if constexpr (std::is_same_v<bool, T>) {
 			a_value = ini.GetBoolValue(a_section, a_key, a_value);
 			ini.SetBoolValue(a_section, a_key, a_value, a_comment);
@@ -33,14 +32,14 @@ bool Settings::LoadSettings()
 
 	get_value(npc.hideAll, "Hide All Text", npc.type.c_str(), ";Hide all names and activation prompts");
 	get_value(activators.hideAll, "Hide All Text", activators.type.c_str(), nullptr);
-    get_value(containers.hideAll, "Hide All Text", containers.type.c_str(), nullptr);
+	get_value(containers.hideAll, "Hide All Text", containers.type.c_str(), nullptr);
 	get_value(doors.hideAll, "Hide All Text", doors.type.c_str(), nullptr);
 	get_value(flora.hideAll, "Hide All Text", flora.type.c_str(), nullptr);
 	get_value(furniture.hideAll, "Hide All Text", furniture.type.c_str(), nullptr);
 	get_value(items.hideAll, "Hide All Text", items.type.c_str(), nullptr);
 	get_value(projectiles.hideAll, "Hide All Text", projectiles.type.c_str(), nullptr);
 
-    get_value(npc.hideButton, "Hide Button", npc.type.c_str(), ";Hide activate button, eg. [E]");
+	get_value(npc.hideButton, "Hide Button", npc.type.c_str(), ";Hide activate button, eg. [E]. This setting may not work if you have HUD mods that bypass vanilla functionality");
 	get_value(activators.hideButton, "Hide Button", activators.type.c_str(), nullptr);
 	get_value(containers.hideButton, "Hide Button", containers.type.c_str(), nullptr);
 	get_value(doors.hideButton, "Hide Button", doors.type.c_str(), nullptr);
@@ -49,10 +48,10 @@ bool Settings::LoadSettings()
 	get_value(items.hideButton, "Hide Button", items.type.c_str(), nullptr);
 	get_value(projectiles.hideButton, "Hide Button", projectiles.type.c_str(), nullptr);
 
-    get_value(npc.hideText, "Hide Text", npc.type.c_str(), ";Hide activate text, eg. Talk, Pickpocket, Harvest, Sleep");
+	get_value(npc.hideText, "Hide Text", npc.type.c_str(), ";Hide activate text, eg. Talk, Pickpocket, Harvest, Sleep");
 	get_value(activators.hideText, "Hide Text", activators.type.c_str(), nullptr);
 	get_value(containers.hideText, "Hide Text", containers.type.c_str(), nullptr);
-    get_value(doors.hideText, "Hide Text", doors.type.c_str(), nullptr);
+	get_value(doors.hideText, "Hide Text", doors.type.c_str(), nullptr);
 	get_value(flora.hideText, "Hide Text", flora.type.c_str(), nullptr);
 	get_value(furniture.hideText, "Hide Text", furniture.type.c_str(), nullptr);
 	get_value(items.hideText, "Hide Text", items.type.c_str(), nullptr);
@@ -79,57 +78,60 @@ bool Settings::LoadSettings()
 	return true;
 }
 
-std::optional<Settings::Text> Settings::GetText(const RE::TESObjectREFRPtr& a_object)
+const Settings::Text* Settings::GetText(const RE::FormType a_formType) const
 {
-	if (const auto base = a_object->GetBaseObject()) {
-		switch (base->GetFormType()) {
-		case RE::FormType::Activator:
-			return activators;
-		case RE::FormType::Container:
-			return containers;
-		case RE::FormType::NPC:
-			return npc;
-		case RE::FormType::Door:
-			return doors;
-		case RE::FormType::Furniture:
-			return furniture;
-		case RE::FormType::Projectile:
-			return projectiles;
-		case RE::FormType::Flora:
-		case RE::FormType::Tree:
-			return flora;
-		default:
-			return items;
-		}
+	switch (a_formType) {
+	case RE::FormType::Activator:
+		return &activators;
+	case RE::FormType::Container:
+		return &containers;
+	case RE::FormType::NPC:
+		return &npc;
+	case RE::FormType::Door:
+		return &doors;
+	case RE::FormType::Furniture:
+		return &furniture;
+	case RE::FormType::Projectile:
+		return &projectiles;
+	case RE::FormType::Flora:
+	case RE::FormType::Tree:
+		return &flora;
+	default:
+		return &items;
 	}
-	return std::nullopt;
 }
 
-std::optional<Settings::Color> Settings::GetColor(const RE::TESObjectREFRPtr& a_object)
+const Settings::Text* Settings::GetText(const RE::TESObjectREFRPtr& a_object) const
+{
+	const auto base = a_object->GetBaseObject();
+    return base ? GetText(base->GetFormType()) : nullptr;
+}
+
+const Settings::Color* Settings::GetColor(const RE::TESObjectREFRPtr& a_object) const
 {
 	if (detail::is_owned(a_object)) {
-	    return owned;
+		return &owned;
 	}
 	if (a_object->IsCrimeToActivate()) {
-	    return steal;
+		return &steal;
 	}
 	if (detail::is_empty(a_object)) {
-	    return empty.color;
+		return &empty.color;
 	}
 	if (a_object->IsLocked()) {
-	    return locked.color;
+		return &locked.color;
 	}
 
-    return std::nullopt;
+	return nullptr;
 }
 
-std::optional<Settings::Tag> Settings::GetTag(const RE::TESObjectREFRPtr& a_object)
+const Settings::Tag* Settings::GetTag(const RE::TESObjectREFRPtr& a_object) const
 {
 	if (detail::is_empty(a_object)) {
-		return empty;
+		return &empty;
 	}
 	if (a_object->IsLocked()) {
-		return locked;
+		return &locked;
 	}
-	return std::nullopt;
+	return nullptr;
 }

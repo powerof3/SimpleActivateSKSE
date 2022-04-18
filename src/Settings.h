@@ -3,7 +3,7 @@
 class Settings
 {
 public:
-	struct Text
+    struct Text
 	{
 		std::string type;
 		bool hideAll;
@@ -35,9 +35,9 @@ public:
 		std::string tag;
 		Color color;
 
-		explicit Tag(const std::string& a_tag, const std::string& a_color) :
+		explicit Tag(std::string a_tag, const std::string& a_color) :
 			hideTag(false),
-			tag(a_tag),
+			tag(std::move(a_tag)),
 			color(a_color)
 		{}
 	};
@@ -50,9 +50,11 @@ public:
 
 	[[nodiscard]] bool LoadSettings();
 
-	std::optional<Text> GetText(const RE::TESObjectREFRPtr& a_object);
-	std::optional<Color> GetColor(const RE::TESObjectREFRPtr& a_object);
-	std::optional<Tag> GetTag(const RE::TESObjectREFRPtr& a_object);
+	const Text* GetText(RE::FormType a_formType) const;
+	const Text* GetText(const RE::TESObjectREFRPtr& a_object) const;
+
+    const Color* GetColor(const RE::TESObjectREFRPtr& a_object) const;
+	const Tag* GetTag(const RE::TESObjectREFRPtr& a_object) const;
 
 private:
 	struct detail
