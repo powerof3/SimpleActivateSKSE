@@ -5,9 +5,17 @@ class Settings
 public:
 	struct Text
 	{
-		bool hideAll{ false };
-		bool hideButton{ true };
-		bool hideText{ true };
+		std::string type;
+		bool hideAll;
+		bool hideButton;
+		bool hideText;
+
+		explicit Text(std::string a_type) :
+			type(std::move(a_type)),
+			hideAll(false),
+			hideButton(true),
+			hideText(true)
+		{}
 	};
 
 	struct Color
@@ -15,7 +23,7 @@ public:
 		bool useColoredName;
 		std::string nameColor;
 
-        explicit Color(std::string a_color) :
+		explicit Color(std::string a_color) :
 			useColoredName(true),
 			nameColor(std::move(a_color))
 		{}
@@ -58,9 +66,10 @@ private:
 		}
 		static bool is_owned(const RE::TESObjectREFRPtr& a_object)
 		{
-            const auto base = a_object->GetBaseObject();
+			const auto base = a_object->GetBaseObject();
 			return base && base->Is(RE::FormType::Furniture) && a_object->GetOwner() && a_object->IsOffLimits();
 		}
+
 	private:
 		static std::int32_t get_inventory_count(RE::TESObjectREFR* a_object, bool a_useDataHandlerInventory = false, bool a_unk03 = false)
 		{
@@ -70,14 +79,14 @@ private:
 		}
 	};
 
-    Text npc;
-
-    Text doors;
-	Text autoLoadDoors;
-
-    Text furniture;
-	Text items;
-	Text flora;
+	Text activators{ "Activators" };
+    Text containers{ "Containers" };
+	Text doors{ "Doors" };
+	Text furniture{ "Furniture" };
+	Text flora{ "Flora" };
+	Text items{ "Items" };
+	Text npc{ "NPCs" };
+	Text projectiles{ "Projectiles" };
 
 	Color steal{ "#FF0000" };
 	Color owned{ "#FFFF00" };

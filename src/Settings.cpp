@@ -31,23 +31,32 @@ bool Settings::LoadSettings()
 	ini.Delete("Locked", nullptr, true);
 	ini.Delete("Empty", nullptr, true);
 
-	get_value(npc.hideAll, "Hide All Text", "NPCs", ";Hide all names and activation prompts");
-	get_value(doors.hideAll, "Hide All Text", "Doors", nullptr);
-	get_value(furniture.hideAll, "Hide All Text", "Furniture", nullptr);
-	get_value(flora.hideAll, "Hide All Text", "Flora", nullptr);
-	get_value(items.hideAll, "Hide All Text", "Items", nullptr);
+	get_value(npc.hideAll, "Hide All Text", npc.type.c_str(), ";Hide all names and activation prompts");
+	get_value(activators.hideAll, "Hide All Text", activators.type.c_str(), nullptr);
+    get_value(containers.hideAll, "Hide All Text", containers.type.c_str(), nullptr);
+	get_value(doors.hideAll, "Hide All Text", doors.type.c_str(), nullptr);
+	get_value(flora.hideAll, "Hide All Text", flora.type.c_str(), nullptr);
+	get_value(furniture.hideAll, "Hide All Text", furniture.type.c_str(), nullptr);
+	get_value(items.hideAll, "Hide All Text", items.type.c_str(), nullptr);
+	get_value(projectiles.hideAll, "Hide All Text", projectiles.type.c_str(), nullptr);
 
-    get_value(npc.hideButton, "Hide Button", "NPCs", ";Hide activate button, eg. [E]");
-	get_value(doors.hideButton, "Hide Button", "Doors", nullptr);
-	get_value(furniture.hideButton, "Hide Button", "Furniture", nullptr);
-	get_value(flora.hideButton, "Hide Button", "Flora", nullptr);
-	get_value(items.hideButton, "Hide Button", "Items", nullptr);
+    get_value(npc.hideButton, "Hide Button", npc.type.c_str(), ";Hide activate button, eg. [E]");
+	get_value(activators.hideButton, "Hide Button", activators.type.c_str(), nullptr);
+	get_value(containers.hideButton, "Hide Button", containers.type.c_str(), nullptr);
+	get_value(doors.hideButton, "Hide Button", doors.type.c_str(), nullptr);
+	get_value(flora.hideButton, "Hide Button", flora.type.c_str(), nullptr);
+	get_value(furniture.hideButton, "Hide Button", furniture.type.c_str(), nullptr);
+	get_value(items.hideButton, "Hide Button", items.type.c_str(), nullptr);
+	get_value(projectiles.hideButton, "Hide Button", projectiles.type.c_str(), nullptr);
 
-    get_value(npc.hideText, "Hide Text", "NPCs", ";Hide activate text, eg. Talk, Pickpocket, Harvest, Sleep");
-	get_value(doors.hideText, "Hide Text", "Doors", nullptr);
-	get_value(furniture.hideText, "Hide Text", "Furniture", nullptr);
-	get_value(flora.hideText, "Hide Text", "Flora", nullptr);
-	get_value(items.hideText, "Hide Text", "Items", nullptr);
+    get_value(npc.hideText, "Hide Text", npc.type.c_str(), ";Hide activate text, eg. Talk, Pickpocket, Harvest, Sleep");
+	get_value(activators.hideText, "Hide Text", activators.type.c_str(), nullptr);
+	get_value(containers.hideText, "Hide Text", containers.type.c_str(), nullptr);
+    get_value(doors.hideText, "Hide Text", doors.type.c_str(), nullptr);
+	get_value(flora.hideText, "Hide Text", flora.type.c_str(), nullptr);
+	get_value(furniture.hideText, "Hide Text", furniture.type.c_str(), nullptr);
+	get_value(items.hideText, "Hide Text", items.type.c_str(), nullptr);
+	get_value(projectiles.hideText, "Hide Text", projectiles.type.c_str(), nullptr);
 
 	get_value(steal.useColoredName, "Steal/Pickpocket", "Show Indicator Using Name", ";Item/NPC names turn red (or custom color defined below).");
 	get_value(steal.nameColor, "Steal/Pickpocket", "Custom Indicator Color", ";Color, in hex (default: red)");
@@ -74,12 +83,18 @@ std::optional<Settings::Text> Settings::GetText(const RE::TESObjectREFRPtr& a_ob
 {
 	if (const auto base = a_object->GetBaseObject()) {
 		switch (base->GetFormType()) {
+		case RE::FormType::Activator:
+			return activators;
+		case RE::FormType::Container:
+			return containers;
 		case RE::FormType::NPC:
 			return npc;
 		case RE::FormType::Door:
 			return doors;
 		case RE::FormType::Furniture:
 			return furniture;
+		case RE::FormType::Projectile:
+			return projectiles;
 		case RE::FormType::Flora:
 		case RE::FormType::Tree:
 			return flora;
