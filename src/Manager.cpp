@@ -51,7 +51,7 @@ namespace UI
 							const std::string origText = data->text.c_str();
 							std::string text = data->text.c_str();
 
-							if (const auto colorSettings = settings->GetColor(crossHairRef); colorSettings && colorSettings->useColoredName) {
+							if (const auto colorSettings = settings->GetColor(crossHairRef, origText); colorSettings && colorSettings->useColoredName) {
 								if (auto splitText = string::split(text, "\n"); splitText.size() > 1 && !colorSettings->nameColor.empty()) {
 									string::replace_first_instance(splitText[kName], detail::get_owned_tag(), "");
 

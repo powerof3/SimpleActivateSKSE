@@ -107,12 +107,12 @@ const Settings::Text* Settings::GetText(const RE::TESObjectREFRPtr& a_object) co
     return base ? GetText(base->GetFormType()) : nullptr;
 }
 
-const Settings::Color* Settings::GetColor(const RE::TESObjectREFRPtr& a_object) const
+const Settings::Color* Settings::GetColor(const RE::TESObjectREFRPtr& a_object, std::string_view a_text) const
 {
 	if (detail::is_owned(a_object)) {
 		return &owned;
 	}
-	if (a_object->IsCrimeToActivate()) {
+	if (a_text.contains("#FF0000"sv)) {
 		return &steal;
 	}
 	if (detail::is_empty(a_object)) {

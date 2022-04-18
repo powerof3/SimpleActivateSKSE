@@ -53,7 +53,7 @@ public:
 	const Text* GetText(RE::FormType a_formType) const;
 	const Text* GetText(const RE::TESObjectREFRPtr& a_object) const;
 
-    const Color* GetColor(const RE::TESObjectREFRPtr& a_object) const;
+    const Color* GetColor(const RE::TESObjectREFRPtr& a_object, std::string_view a_text) const;
 	const Tag* GetTag(const RE::TESObjectREFRPtr& a_object) const;
 
 private:
@@ -98,7 +98,7 @@ private:
 		"#FFFF00"
 	};
 	Tag empty{
-		"",
+		{},
 		"#808080"
 	};
 };
