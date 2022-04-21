@@ -19,16 +19,18 @@ bool Settings::LoadSettings()
 		}
 	};
 
-	//delete and recreate sections
-	ini.Delete("NPCs", nullptr, true);
-	ini.Delete("Doors", nullptr, true);
-	ini.Delete("Furniture", nullptr, true);
-	ini.Delete("Flora", nullptr, true);
-	ini.Delete("Items", nullptr, true);
-	ini.Delete("Steal/Pickpocket", nullptr, true);
-	ini.Delete("Owned", nullptr, true);
-	ini.Delete("Locked", nullptr, true);
-	ini.Delete("Empty", nullptr, true);
+	//delete and recreate sections IF old section was found
+	if (const auto section = ini.GetSection("NPCs"); section && !section->empty()) {
+		ini.Delete("NPCs", nullptr, true);
+		ini.Delete("Doors", nullptr, true);
+		ini.Delete("Furniture", nullptr, true);
+		ini.Delete("Flora", nullptr, true);
+		ini.Delete("Items", nullptr, true);
+		ini.Delete("Steal/Pickpocket", nullptr, true);
+		ini.Delete("Owned", nullptr, true);
+		ini.Delete("Locked", nullptr, true);
+		ini.Delete("Empty", nullptr, true);
+	}
 
 	get_value(npc.hideAll, "Hide All Text", npc.type.c_str(), ";Hide all names and activation prompts");
 	get_value(activators.hideAll, "Hide All Text", activators.type.c_str(), nullptr);
@@ -104,7 +106,7 @@ const Settings::Text* Settings::GetText(const RE::FormType a_formType) const
 const Settings::Text* Settings::GetText(const RE::TESObjectREFRPtr& a_object) const
 {
 	const auto base = a_object->GetBaseObject();
-    return base ? GetText(base->GetFormType()) : nullptr;
+	return base ? GetText(base->GetFormType()) : nullptr;
 }
 
 const Settings::Color* Settings::GetColor(const RE::TESObjectREFRPtr& a_object, std::string_view a_text) const
