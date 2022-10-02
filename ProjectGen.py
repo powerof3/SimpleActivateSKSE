@@ -22,8 +22,6 @@ def make_cmake():
 			headers.append(name)
 		elif name.endswith(SOURCE_TYPES):
 			sources.append(name)
-	headers.sort()
-	sources.sort()
 
 	def do_make(a_filename, a_varname, a_files):
 		out = open("cmake/" + a_filename + ".cmake", "w", encoding="utf-8")

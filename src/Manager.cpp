@@ -21,13 +21,10 @@ namespace UI
 
 			static std::string get_owned_tag()
 			{
-				const auto gmst = RE::GameSettingCollection::GetSingleton();
-				if (const auto ownedTag = gmst ? gmst->GetSetting("sOwned") : nullptr) {
-					std::string tag{ " (" };
-					tag.append(ownedTag->GetString()).append(")");
-					return tag;
-				}
-				return {};
+				std::string tag{ " (" };
+				tag.append(RE::GameSettingCollection::GetSingleton()->GetSetting("sOwned")->GetString());
+				tag.append(")");
+				return tag;
 			}
 		};
 
@@ -75,7 +72,7 @@ namespace UI
 									text = string::join(splitText, "\n");
 								} else if (splitText.size() > 1) {
 									text = hasValue && textSettings->hideButton ? "\n" + splitText[kName] :
-                                                                                  splitText[kName];
+									                                              splitText[kName];
 								}
 							}
 
@@ -119,10 +116,9 @@ namespace UI
 		{
 			static std::string get_To_tag()
 			{
-				const auto gmst = RE::GameSettingCollection::GetSingleton();
-				const auto toTag = gmst ? gmst->GetSetting("sTo") : nullptr;
-
-				return toTag ? std::string(toTag->GetString()).append(" ") : std::string{};
+				auto tag = std::string(RE::GameSettingCollection::GetSingleton()->GetSetting("sTo")->GetString());
+				tag.append(" ");
+				return tag;
 			}
 		};
 
@@ -163,8 +159,6 @@ namespace UI
 
 	void Install()
 	{
-		SKSE::AllocTrampoline(32);
-
 		CrossHair::Install();
 		AutoLoadDoor::Install();
 	}

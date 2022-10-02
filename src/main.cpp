@@ -1,6 +1,15 @@
 #include "Settings.h"
 #include "Manager.h"
 
+void MessageHandler(SKSE::MessagingInterface::Message* a_message)
+{
+	if (a_message->type == SKSE::MessagingInterface::kPostLoad) {
+		if (Settings::GetSingleton()->LoadSettings()) {
+			UI::Install();
+		}
+	}
+}
+
 #ifdef SKYRIM_AE
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 	SKSE::PluginVersionData v;
@@ -59,13 +68,12 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 {
 	InitializeLog();
 
-	logger::info("loaded");
+	logger::info("Game version : {}", a_skse->RuntimeVersion().string());
 
 	SKSE::Init(a_skse);
 
-	if (Settings::GetSingleton()->LoadSettings()) {
-		UI::Install();
-	}
+	const auto messaging = SKSE::GetMessagingInterface();
+	messaging->RegisterListener(MessageHandler);
 
 	return true;
 }
