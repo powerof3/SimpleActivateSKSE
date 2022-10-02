@@ -17,7 +17,7 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 	v.PluginName("SimpleActivateSKSE");
 	v.AuthorName("powerofthree");
 	v.UsesAddressLibrary();
-	v.UsesUpdatedStructs();
+	v.UsesNoStructs();
 	v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
 
 	return v;

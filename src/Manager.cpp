@@ -2,7 +2,15 @@
 
 namespace UI
 {
-	namespace CrossHair
+	namespace gmst
+	{
+		const char* get_string(const char* a_setting)
+		{
+			return RE::GameSettingCollection::GetSingleton()->GetSetting(a_setting)->GetString();
+		}
+	}
+
+    namespace CrossHair
 	{
 		enum : std::uint32_t
 		{
@@ -21,10 +29,8 @@ namespace UI
 
 			static std::string get_owned_tag()
 			{
-				std::string tag{ " (" };
-				tag.append(RE::GameSettingCollection::GetSingleton()->GetSetting("sOwned")->GetString());
-				tag.append(")");
-				return tag;
+				static std::string tag = std::string(" (").append(gmst::get_string("sOwned")).append(")");
+			    return tag;
 			}
 		};
 
@@ -116,8 +122,7 @@ namespace UI
 		{
 			static std::string get_To_tag()
 			{
-				auto tag = std::string(RE::GameSettingCollection::GetSingleton()->GetSetting("sTo")->GetString());
-				tag.append(" ");
+				static std::string tag = std::string(gmst::get_string("sTo")).append(" ");
 				return tag;
 			}
 		};
