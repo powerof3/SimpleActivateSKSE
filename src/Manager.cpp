@@ -24,7 +24,7 @@ namespace UI
 			static bool has_gold_value(const RE::TESObjectREFRPtr& a_object)
 			{
 				const auto base = a_object ? a_object->GetBaseObject() : nullptr;
-				return base && base->GetGoldValue() != -1;
+				return base && base->GetGoldValue() > 0;
 			}
 
 			static std::string get_owned_tag()

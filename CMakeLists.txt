@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
-set(NAME "po3_SimpleActivateSKSE")
-set(VERSION 1.4.0)
+set(NAME "po3_SimpleActivateSKSE" CACHE STRING "")
+set(VERSION 1.4.0 CACHE STRING "")
 set(AE_VERSION 1)
 
 # ---- Options ----
