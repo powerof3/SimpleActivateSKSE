@@ -6,8 +6,8 @@
   "license": "MIT",
   "dependencies": [
     "boost-stl-interfaces",
+    "clib-util",
     "rsm-binary-io",
-    "simpleini",
     "spdlog",
     "xbyak"
   ]
