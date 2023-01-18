@@ -157,7 +157,8 @@ namespace UI
 
 		void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(50727, 51622), OFFSET(0xD7, 0x22B) };
+			// 0x22B in 1.6.318
+		    REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(50727, 51622), OFFSET(0xD7, 0x255) };
 			stl::write_thunk_call<SendHUDMessage>(target.address());
 		}
 	}
