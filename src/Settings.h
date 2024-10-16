@@ -58,10 +58,13 @@ private:
 	{
 		static bool is_empty(const RE::TESObjectREFRPtr& a_object)
 		{
-			if (get_inventory_count(a_object.get()) == 0) {
-				return a_object->IsNot(RE::FormType::ActorCharacter) || a_object->IsDead();
+			std::int32_t inventoryCount = -1;
+			if (auto ashPile = a_object->extraList.GetAshPileRef(); ashPile.get()) {
+				inventoryCount = get_inventory_count(ashPile.get().get());
+			} else {
+				inventoryCount = get_inventory_count(a_object.get());
 			}
-			return false;
+			return inventoryCount == 0 ? a_object->IsNot(RE::FormType::ActorCharacter) || a_object->IsDead() : false;
 		}
 		static bool is_owned(const RE::TESObjectREFRPtr& a_object)
 		{
