@@ -10,7 +10,7 @@ namespace UI
 		}
 	}
 
-    namespace CrossHair
+	namespace CrossHair
 	{
 		enum : std::uint32_t
 		{
@@ -30,7 +30,7 @@ namespace UI
 			static std::string get_owned_tag()
 			{
 				static std::string tag = std::string(" (").append(gmst::get_string("sOwned")).append(")");
-			    return tag;
+				return tag;
 			}
 		};
 
@@ -44,15 +44,16 @@ namespace UI
 				if (data && crossHairRef) {
 					const auto settings = Settings::GetSingleton();
 
-					if (const auto textSettings = settings->GetText(crossHairRef); textSettings) {
+					if (const auto textSettings = settings->GetText(crossHairRef)) {
 						if (textSettings->hideAll) {
 							data->type = RE::HUDData::Type::kUnk0;
 						} else {
 							if (textSettings->hideButton) {
 								data->type = RE::HUDData::Type::kActivateNoLabel;
 							}
+
 							const std::string origText = data->text.c_str();
-							std::string text = data->text.c_str();
+							std::string text = origText;
 
 							if (const auto colorSettings = settings->GetColor(crossHairRef, origText); colorSettings && colorSettings->useColoredName) {
 								if (auto splitText = string::split(text, "\n"); splitText.size() > 1 && !colorSettings->nameColor.empty()) {
@@ -82,7 +83,7 @@ namespace UI
 								}
 							}
 
-							if (const auto tag = settings->GetTag(crossHairRef); tag) {
+							if (const auto tag = settings->GetTag(crossHairRef)) {
 								if (string::split(origText, "\n").size() > 2) {
 									auto splitText = string::split(text, "\n");
 									if (tag->hideTag) {
@@ -132,7 +133,7 @@ namespace UI
 			static void thunk(RE::UIMessageQueue* a_this, const RE::BSFixedString& a_menuName, RE::UI_MESSAGE_TYPE a_type, RE::IUIMessageData* a_data)
 			{
 				if (const auto data = a_data ? static_cast<RE::HUDData*>(a_data) : nullptr) {
-					if (const auto textSettings = Settings::GetSingleton()->GetText(RE::FormType::Door); textSettings) {
+					if (const auto textSettings = Settings::GetSingleton()->GetText(RE::FormType::Door)) {
 						if (textSettings->hideAll) {
 							data->type = RE::HUDData::Type::kUnk0;
 						} else {
@@ -158,7 +159,7 @@ namespace UI
 		void Install()
 		{
 			// 0x22B in 1.6.318
-		    REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(50727, 51622), OFFSET(0xD7, 0x255) };
+			REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(50727, 51622), OFFSET(0xD7, 0x255) };
 			stl::write_thunk_call<SendHUDMessage>(target.address());
 		}
 	}

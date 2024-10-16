@@ -1,52 +1,49 @@
 #pragma once
 
-class Settings
+class Settings : public ISingleton<Settings>
 {
 public:
     struct Text
 	{
-		std::string type;
-		bool hideAll;
-		bool hideButton;
-		bool hideText;
-
 		explicit Text(std::string a_type) :
 			type(std::move(a_type)),
 			hideAll(false),
 			hideButton(true),
 			hideText(true)
 		{}
+		
+		// members
+		std::string type;
+		bool hideAll;
+		bool hideButton;
+		bool hideText;
 	};
 
 	struct Color
 	{
-		bool useColoredName;
-		std::string nameColor;
-
 		explicit Color(std::string a_color) :
 			useColoredName(true),
 			nameColor(std::move(a_color))
 		{}
+		
+		// members
+		bool useColoredName;
+		std::string nameColor;
 	};
 
 	struct Tag
 	{
-		bool hideTag;
-		std::string tag;
-		Color color;
-
 		explicit Tag(std::string a_tag, const std::string& a_color) :
 			hideTag(true),
 			tag(std::move(a_tag)),
 			color(a_color)
 		{}
+		
+		// members
+		bool hideTag;
+		std::string tag;
+		Color color;
 	};
-
-	[[nodiscard]] static Settings* GetSingleton()
-	{
-		static Settings singleton;
-		return std::addressof(singleton);
-	}
 
 	[[nodiscard]] bool LoadSettings();
 
@@ -81,6 +78,7 @@ private:
 		}
 	};
 
+	// members
 	Text activators{ "Activators" };
     Text containers{ "Containers" };
 	Text doors{ "Doors" };

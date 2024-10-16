@@ -9,16 +9,6 @@ bool Settings::LoadSettings()
 
 	ini.LoadFile(path);
 
-	const auto get_value = [&]<class T>(T& a_value, const char* a_section, const char* a_key, const char* a_comment) {
-		if constexpr (std::is_same_v<bool, T>) {
-			a_value = ini.GetBoolValue(a_section, a_key, a_value);
-			ini.SetBoolValue(a_section, a_key, a_value, a_comment);
-		} else {
-			a_value = ini.GetValue(a_section, a_key, a_value.c_str());
-			ini.SetValue(a_section, a_key, a_value.c_str(), a_comment);
-		}
-	};
-
 	//delete and recreate sections IF old section was found
 	if (const auto section = ini.GetSection("NPCs"); section && !section->empty()) {
 		ini.Delete("NPCs", nullptr, true);
@@ -32,48 +22,48 @@ bool Settings::LoadSettings()
 		ini.Delete("Empty", nullptr, true);
 	}
 
-	get_value(npc.hideAll, "Hide All Text", npc.type.c_str(), ";Hide all names and activation prompts");
-	get_value(activators.hideAll, "Hide All Text", activators.type.c_str(), nullptr);
-	get_value(containers.hideAll, "Hide All Text", containers.type.c_str(), nullptr);
-	get_value(doors.hideAll, "Hide All Text", doors.type.c_str(), nullptr);
-	get_value(flora.hideAll, "Hide All Text", flora.type.c_str(), nullptr);
-	get_value(furniture.hideAll, "Hide All Text", furniture.type.c_str(), nullptr);
-	get_value(items.hideAll, "Hide All Text", items.type.c_str(), nullptr);
-	get_value(projectiles.hideAll, "Hide All Text", projectiles.type.c_str(), nullptr);
+	ini::get_value(ini, npc.hideAll, "Hide All Text", npc.type.c_str(), ";Hide all names and activation prompts");
+	ini::get_value(ini, activators.hideAll, "Hide All Text", activators.type.c_str(), nullptr);
+	ini::get_value(ini, containers.hideAll, "Hide All Text", containers.type.c_str(), nullptr);
+	ini::get_value(ini, doors.hideAll, "Hide All Text", doors.type.c_str(), nullptr);
+	ini::get_value(ini, flora.hideAll, "Hide All Text", flora.type.c_str(), nullptr);
+	ini::get_value(ini, furniture.hideAll, "Hide All Text", furniture.type.c_str(), nullptr);
+	ini::get_value(ini, items.hideAll, "Hide All Text", items.type.c_str(), nullptr);
+	ini::get_value(ini, projectiles.hideAll, "Hide All Text", projectiles.type.c_str(), nullptr);
 
-	get_value(npc.hideButton, "Hide Button", npc.type.c_str(), ";Hide activate button, eg. [E]. This setting may not work if you have HUD mods that bypass vanilla functionality");
-	get_value(activators.hideButton, "Hide Button", activators.type.c_str(), nullptr);
-	get_value(containers.hideButton, "Hide Button", containers.type.c_str(), nullptr);
-	get_value(doors.hideButton, "Hide Button", doors.type.c_str(), nullptr);
-	get_value(flora.hideButton, "Hide Button", flora.type.c_str(), nullptr);
-	get_value(furniture.hideButton, "Hide Button", furniture.type.c_str(), nullptr);
-	get_value(items.hideButton, "Hide Button", items.type.c_str(), nullptr);
-	get_value(projectiles.hideButton, "Hide Button", projectiles.type.c_str(), nullptr);
+	ini::get_value(ini, npc.hideButton, "Hide Button", npc.type.c_str(), ";Hide activate button, eg. [E]. This setting may not work if you have HUD mods that bypass vanilla functionality");
+	ini::get_value(ini, activators.hideButton, "Hide Button", activators.type.c_str(), nullptr);
+	ini::get_value(ini, containers.hideButton, "Hide Button", containers.type.c_str(), nullptr);
+	ini::get_value(ini, doors.hideButton, "Hide Button", doors.type.c_str(), nullptr);
+	ini::get_value(ini, flora.hideButton, "Hide Button", flora.type.c_str(), nullptr);
+	ini::get_value(ini, furniture.hideButton, "Hide Button", furniture.type.c_str(), nullptr);
+	ini::get_value(ini, items.hideButton, "Hide Button", items.type.c_str(), nullptr);
+	ini::get_value(ini, projectiles.hideButton, "Hide Button", projectiles.type.c_str(), nullptr);
 
-	get_value(npc.hideText, "Hide Text", npc.type.c_str(), ";Hide activate text, eg. Talk, Pickpocket, Harvest, Sleep");
-	get_value(activators.hideText, "Hide Text", activators.type.c_str(), nullptr);
-	get_value(containers.hideText, "Hide Text", containers.type.c_str(), nullptr);
-	get_value(doors.hideText, "Hide Text", doors.type.c_str(), nullptr);
-	get_value(flora.hideText, "Hide Text", flora.type.c_str(), nullptr);
-	get_value(furniture.hideText, "Hide Text", furniture.type.c_str(), nullptr);
-	get_value(items.hideText, "Hide Text", items.type.c_str(), nullptr);
-	get_value(projectiles.hideText, "Hide Text", projectiles.type.c_str(), nullptr);
+	ini::get_value(ini, npc.hideText, "Hide Text", npc.type.c_str(), ";Hide activate text, eg. Talk, Pickpocket, Harvest, Sleep");
+	ini::get_value(ini, activators.hideText, "Hide Text", activators.type.c_str(), nullptr);
+	ini::get_value(ini, containers.hideText, "Hide Text", containers.type.c_str(), nullptr);
+	ini::get_value(ini, doors.hideText, "Hide Text", doors.type.c_str(), nullptr);
+	ini::get_value(ini, flora.hideText, "Hide Text", flora.type.c_str(), nullptr);
+	ini::get_value(ini, furniture.hideText, "Hide Text", furniture.type.c_str(), nullptr);
+	ini::get_value(ini, items.hideText, "Hide Text", items.type.c_str(), nullptr);
+	ini::get_value(ini, projectiles.hideText, "Hide Text", projectiles.type.c_str(), nullptr);
 
-	get_value(steal.useColoredName, "Steal/Pickpocket", "Show Indicator Using Name", ";Item/NPC names turn red (or custom color defined below).");
-	get_value(steal.nameColor, "Steal/Pickpocket", "Custom Indicator Color", ";Color, in hex (default: red)");
+	ini::get_value(ini, steal.useColoredName, "Steal/Pickpocket", "Show Indicator Using Name", ";Item/NPC names turn red (or custom color defined below).");
+	ini::get_value(ini, steal.nameColor, "Steal/Pickpocket", "Custom Indicator Color", ";Color, in hex (default: red)");
 
-	get_value(owned.useColoredName, "Owned", "Show Indicator Using Name", ";Owned furniture name turns yellow (or custom color defined below).");
-	get_value(owned.nameColor, "Owned", "Custom Indicator Color", ";Color, in hex (default: yellow)");
+	ini::get_value(ini, owned.useColoredName, "Owned", "Show Indicator Using Name", ";Owned furniture name turns yellow (or custom color defined below).");
+	ini::get_value(ini, owned.nameColor, "Owned", "Custom Indicator Color", ";Color, in hex (default: yellow)");
 
-	get_value(locked.hideTag, "Locked", "Hide Locked Tag", ";Hide locked status (eg. Apprentice, Adept, Master)");
-	get_value(locked.tag, "Locked", "Custom Locked Tag", ";Set custom tag for all locked objects. Leave entry blank if you don't want to set it\n;No effect if Hide Lock Tag is true.");
-	get_value(locked.color.useColoredName, "Locked", "Show Indicator Using Name", ";Locked object names turn yellow (or custom color defined below).");
-	get_value(locked.color.nameColor, "Locked", "Custom Indicator Color", ";Color, in hex (default: yellow)");
+	ini::get_value(ini, locked.hideTag, "Locked", "Hide Locked Tag", ";Hide locked status (eg. Apprentice, Adept, Master)");
+	ini::get_value(ini, locked.tag, "Locked", "Custom Locked Tag", ";Set custom tag for all locked objects. Leave entry blank if you don't want to set it\n;No effect if Hide Lock Tag is true.");
+	ini::get_value(ini, locked.color.useColoredName, "Locked", "Show Indicator Using Name", ";Locked object names turn yellow (or custom color defined below).");
+	ini::get_value(ini, locked.color.nameColor, "Locked", "Custom Indicator Color", ";Color, in hex (default: yellow)");
 
-	get_value(empty.hideTag, "Empty", "Hide Empty Tag", ";Hide empty container state");
-	get_value(empty.tag, "Empty", "Custom Empty Tag", ";Set custom tag for empty objects (eg. [Empty]). Leave entry blank if you don't want to set it\n;No effect if Hide Empty Tag is true.");
-	get_value(empty.color.useColoredName, "Empty", "Show Indicator Using Name", ";Empty container names turn grey (or custom color defined below).");
-	get_value(empty.color.nameColor, "Empty", "Custom Indicator Color", ";Color, in hex (default: grey)");
+	ini::get_value(ini, empty.hideTag, "Empty", "Hide Empty Tag", ";Hide empty container state");
+	ini::get_value(ini, empty.tag, "Empty", "Custom Empty Tag", ";Set custom tag for empty objects (eg. [Empty]). Leave entry blank if you don't want to set it\n;No effect if Hide Empty Tag is true.");
+	ini::get_value(ini, empty.color.useColoredName, "Empty", "Show Indicator Using Name", ";Empty container names turn grey (or custom color defined below).");
+	ini::get_value(ini, empty.color.nameColor, "Empty", "Custom Indicator Color", ";Color, in hex (default: grey)");
 
 	(void)ini.SaveFile(path);
 

@@ -69,9 +69,9 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 {
 	InitializeLog();
 
-	logger::info("Game version : {}", a_skse->RuntimeVersion().string());
+	logger::info("Game version : {}", a_skse->RuntimeVersion());
 
-	SKSE::Init(a_skse);
+	SKSE::Init(a_skse, false);
 
 	const auto messaging = SKSE::GetMessagingInterface();
 	messaging->RegisterListener(MessageHandler);
