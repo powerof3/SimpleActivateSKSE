@@ -36,23 +36,21 @@ namespace UI
 
 		struct SendHUDMessage
 		{
-			static void thunk(RE::UIMessageQueue* a_this, const RE::BSFixedString& a_menuName, RE::UI_MESSAGE_TYPE a_type, RE::IUIMessageData* a_data)
+			static void thunk(RE::UIMessageQueue* a_this, const RE::BSFixedString& a_menuName, RE::UI_MESSAGE_TYPE a_type, RE::HUDData* a_data)
 			{
-				const auto data = a_data ? static_cast<RE::HUDData*>(a_data) : nullptr;
-				const auto crossHairRef = data ? data->crossHairRef.get() : RE::TESObjectREFRPtr();
-
-				if (data && crossHairRef) {
+				if (const auto crossHairRef = a_data ? a_data->crossHairRef.get() : RE::TESObjectREFRPtr()) {
 					const auto settings = Settings::GetSingleton();
 
 					if (const auto textSettings = settings->GetText(crossHairRef)) {
 						if (textSettings->hideAll) {
-							data->type = RE::HUDData::Type::kUnk0;
+							a_data->type = RE::HUDData::Type::kActivateNoLabel;
+							a_data->text.clear();
 						} else {
 							if (textSettings->hideButton) {
-								data->type = RE::HUDData::Type::kActivateNoLabel;
+								a_data->type = RE::HUDData::Type::kActivateNoLabel;
 							}
 
-							const std::string origText = data->text.c_str();
+							const std::string origText = a_data->text.c_str();
 							std::string text = origText;
 
 							if (const auto colorSettings = settings->GetColor(crossHairRef, origText); colorSettings && colorSettings->useColoredName) {
@@ -97,7 +95,7 @@ namespace UI
 							}
 
 							if (text != origText) {
-								data->text = text;
+								a_data->text = text;
 							}
 						}
 					}
@@ -130,22 +128,23 @@ namespace UI
 
 		struct SendHUDMessage
 		{
-			static void thunk(RE::UIMessageQueue* a_this, const RE::BSFixedString& a_menuName, RE::UI_MESSAGE_TYPE a_type, RE::IUIMessageData* a_data)
+			static void thunk(RE::UIMessageQueue* a_this, const RE::BSFixedString& a_menuName, RE::UI_MESSAGE_TYPE a_type, RE::HUDData* a_data)
 			{
-				if (const auto data = a_data ? static_cast<RE::HUDData*>(a_data) : nullptr) {
+				if (a_data) {
 					if (const auto textSettings = Settings::GetSingleton()->GetText(RE::FormType::Door)) {
 						if (textSettings->hideAll) {
-							data->type = RE::HUDData::Type::kUnk0;
+							a_data->type = RE::HUDData::Type::kActivateNoLabel;
+							a_data->text.clear();
 						} else {
-							const std::string origText = data->text.c_str();
-							std::string text = data->text.c_str();
+							const std::string origText = a_data->text.c_str();
+							std::string text = a_data->text.c_str();
 
 							if (textSettings->hideText) {
 								string::replace_first_instance(text, detail::get_To_tag(), "");
 							}
 
 							if (text != origText) {
-								data->text = text;
+								a_data->text = text;
 							}
 						}
 					}
