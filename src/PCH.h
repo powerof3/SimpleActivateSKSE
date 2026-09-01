@@ -4,35 +4,34 @@
 #define NOMINMAX
 
 #include "RE/Skyrim.h"
+#include "REX/REX.h"
 #include "SKSE/SKSE.h"
 
-#include <ClibUtil/numeric.hpp>
-#include <ClibUtil/simpleINI.hpp>
-#include <ClibUtil/singleton.hpp>
-#include <ClibUtil/string.hpp>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <xbyak/xbyak.h>
 
-#define DLLEXPORT __declspec(dllexport)
-
-namespace logger = SKSE::log;
-namespace string = clib_util::string;
-namespace numeric = clib_util::numeric;
-namespace ini = clib_util::ini;
-
 using namespace std::literals;
-using namespace clib_util::singleton;
+using namespace RE::literals;
 
 namespace stl
 {
-	using namespace SKSE::stl;
-
 	template <class T>
 	void write_thunk_call(std::uintptr_t a_src)
 	{
-		auto& trampoline = SKSE::GetTrampoline();
-		SKSE::AllocTrampoline(14);
+		auto& trampoline = REL::GetTrampoline();
 		T::func = trampoline.write_call<5>(a_src, T::thunk);
+	}
+}
+
+namespace Runtime
+{
+	inline constexpr REL::Version SSE_1_7_99(1, 7, 99, 0);
+	inline constexpr REL::Version MIN_ADDRESS_LIBRARY_V5 = SSE_1_7_99;
+
+	[[nodiscard]] inline bool IsAtLeast1_7_99() noexcept
+	{
+		static bool result = REX::FModule::GetExecutingModule().GetFileVersion() >= Runtime::SSE_1_7_99;
+		return result;
 	}
 }
 

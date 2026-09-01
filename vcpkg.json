@@ -3,12 +3,16 @@
   "version-string": "1.4.2",
   "description": "SKSE plugin that streamlines activate prompts",
   "homepage": "",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "dependencies": [
-    "clib-util",
-    "rsm-binary-io",
-    "spdlog",
-    "xbyak"
+    {
+      "name": "commonlib-shared",
+      "features": [
+        "xbyak",
+        "ini"
+      ]
+    },
+    "spdlog"
   ],
-  "builtin-baseline": "9b44f143bd2d68a21e99301778d15b0eb4629235"
+  "builtin-baseline": "00c5775211f45cd08b37fce0484b4cb940e422ab"
 }

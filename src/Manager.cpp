@@ -2,14 +2,6 @@
 
 namespace UI
 {
-	namespace gmst
-	{
-		const char* get_string(const char* a_setting)
-		{
-			return RE::GameSettingCollection::GetSingleton()->GetSetting(a_setting)->GetString();
-		}
-	}
-
 	namespace CrossHair
 	{
 		enum : std::uint32_t
@@ -29,7 +21,7 @@ namespace UI
 
 			static std::string get_owned_tag()
 			{
-				static std::string tag = std::string(" (").append(gmst::get_string("sOwned")).append(")");
+				static std::string tag = std::string(" (").append(*"sOwned"_gs).append(")");
 				return tag;
 			}
 		};
@@ -38,43 +30,43 @@ namespace UI
 		{
 			static void thunk(RE::UIMessageQueue* a_this, const RE::BSFixedString& a_menuName, RE::UI_MESSAGE_TYPE a_type, RE::HUDData* a_data)
 			{
-				if (const auto crossHairRef = a_data ? a_data->crossHairRef.get() : RE::TESObjectREFRPtr()) {
+				if (const auto crossHairRef = a_data ? a_data->crosshairRef.get() : RE::TESObjectREFRPtr()) {
 					const auto settings = Settings::GetSingleton();
 
 					if (const auto textSettings = settings->GetText(crossHairRef)) {
 						if (textSettings->hideAll) {
-							a_data->type = RE::HUDData::Type::kActivateNoLabel;
+							a_data->type = RE::HUD_MESSAGE_TYPE::kSetCrosshairTargetTextOnly;
 							a_data->text.clear();
 						} else {
 							if (textSettings->hideButton) {
-								a_data->type = RE::HUDData::Type::kActivateNoLabel;
+								a_data->type = RE::HUD_MESSAGE_TYPE::kSetCrosshairTargetTextOnly;
 							}
 
 							const std::string origText = a_data->text.c_str();
 							std::string text = origText;
 
 							if (const auto colorSettings = settings->GetColor(crossHairRef, origText); colorSettings && colorSettings->useColoredName) {
-								if (auto splitText = string::split(text, "\n"); splitText.size() > 1 && !colorSettings->nameColor.empty()) {
-									string::replace_first_instance(splitText[kName], detail::get_owned_tag(), "");
+								if (auto splitText = REX::STR::SPLIT(text, "\n"); splitText.size() > 1 && !colorSettings->GetNameColor().empty()) {
+									REX::STR::REPLACE_FIRST_INSTANCE(splitText[kName], detail::get_owned_tag(), "");
 
 									std::string coloredName{ colored_font };
-									string::replace_first_instance(coloredName, "rgba", colorSettings->nameColor);
-									string::replace_first_instance(coloredName, "text", splitText[kName]);
+									REX::STR::REPLACE_FIRST_INSTANCE(coloredName, "rgba", colorSettings->GetNameColor());
+									REX::STR::REPLACE_FIRST_INSTANCE(coloredName, "text", splitText[kName]);
 									splitText[kName] = coloredName;
 
-									text = string::join(splitText, "\n");
+									text = REX::STR::JOIN(splitText, "\n");
 								}
 							}
 
 							if (textSettings->hideText) {
 								const bool hasValue = detail::has_gold_value(crossHairRef);
-								if (auto splitText = string::split(text, "\n"); splitText.size() > 2) {
+								if (auto splitText = REX::STR::SPLIT(text, "\n"); splitText.size() > 2) {
 									if (hasValue && textSettings->hideButton) {
 										splitText[kPrompt] = "\n";
 									} else {
 										splitText.erase(splitText.begin());
 									}
-									text = string::join(splitText, "\n");
+									text = REX::STR::JOIN(splitText, "\n");
 								} else if (splitText.size() > 1) {
 									text = hasValue && textSettings->hideButton ? "\n" + splitText[kName] :
 									                                              splitText[kName];
@@ -82,14 +74,14 @@ namespace UI
 							}
 
 							if (const auto tag = settings->GetTag(crossHairRef)) {
-								if (string::split(origText, "\n").size() > 2) {
-									auto splitText = string::split(text, "\n");
+								if (REX::STR::SPLIT(origText, "\n").size() > 2) {
+									auto splitText = REX::STR::SPLIT(text, "\n");
 									if (tag->hideTag) {
 										splitText.pop_back();
-										text = string::join(splitText, "\n");
-									} else if (!tag->tag.empty()) {
-										splitText.back() = tag->tag;
-										text = string::join(splitText, "\n");
+										text = REX::STR::JOIN(splitText, "\n");
+									} else if (const auto& tagStr = tag->GetTag(); !tagStr.empty()) {
+										splitText.back() = tagStr;
+										text = REX::STR::JOIN(splitText, "\n");
 									}
 								}
 							}
@@ -121,7 +113,7 @@ namespace UI
 		{
 			static std::string get_To_tag()
 			{
-				static std::string tag = std::string(gmst::get_string("sTo")).append(" ");
+				static std::string tag = std::string(*"sTo"_gs).append(" ");
 				return tag;
 			}
 		};
@@ -133,14 +125,14 @@ namespace UI
 				if (a_data) {
 					if (const auto textSettings = Settings::GetSingleton()->GetText(RE::FormType::Door)) {
 						if (textSettings->hideAll) {
-							a_data->type = RE::HUDData::Type::kActivateNoLabel;
+							a_data->type = RE::HUD_MESSAGE_TYPE::kSetCrosshairTargetTextOnly;
 							a_data->text.clear();
 						} else {
 							const std::string origText = a_data->text.c_str();
 							std::string text = a_data->text.c_str();
 
 							if (textSettings->hideText) {
-								string::replace_first_instance(text, detail::get_To_tag(), "");
+								REX::STR::REPLACE_FIRST_INSTANCE(text, detail::get_To_tag(), "");
 							}
 
 							if (text != origText) {
