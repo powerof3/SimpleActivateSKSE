@@ -43,7 +43,7 @@ namespace UI
 							}
 
 							const std::string origText = a_data->text.c_str();
-							std::string text = origText;
+							std::string       text = origText;
 
 							if (const auto colorSettings = settings->GetColor(crossHairRef, origText); colorSettings && colorSettings->useColoredName) {
 								if (auto splitText = REX::STR::SPLIT(text, "\n"); splitText.size() > 1 && !colorSettings->GetNameColor().empty()) {
@@ -58,7 +58,10 @@ namespace UI
 								}
 							}
 
-							if (textSettings->hideText) {
+							const auto base = crossHairRef->GetBaseObject();
+							bool       keepLabel = base && settings->ShowActionLabel(base->GetFormType());
+
+							if (textSettings->hideText && !keepLabel) {
 								const bool hasValue = detail::has_gold_value(crossHairRef);
 								if (auto splitText = REX::STR::SPLIT(text, "\n"); splitText.size() > 2) {
 									if (hasValue && textSettings->hideButton) {
@@ -129,7 +132,7 @@ namespace UI
 							a_data->text.clear();
 						} else {
 							const std::string origText = a_data->text.c_str();
-							std::string text = a_data->text.c_str();
+							std::string       text = a_data->text.c_str();
 
 							if (textSettings->hideText) {
 								REX::STR::REPLACE_FIRST_INSTANCE(text, detail::get_To_tag(), "");

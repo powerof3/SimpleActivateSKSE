@@ -1,12 +1,22 @@
-#include "Settings.h"
 #include "Manager.h"
+#include "Settings.h"
 
 void MessageHandler(SKSE::MessagingInterface::Message* a_message)
 {
-	if (a_message->type == SKSE::MessagingInterface::kPostLoad) {
-		if (Settings::GetSingleton()->LoadSettings()) {
-			UI::Install();
+	switch (a_message->type) {
+	case SKSE::MessagingInterface::kPostLoad:
+		{
+			if (Settings::GetSingleton()->LoadSettings()) {
+				UI::Install();
+			}
 		}
+		break;
+	case SKSE::MessagingInterface::kInputLoaded:
+		Settings::GetSingleton()->Register();
+		break;
+	case SKSE::MessagingInterface::kDataLoaded:
+		Settings::GetSingleton()->OnDataLoaded();
+		break;
 	}
 }
 
@@ -52,7 +62,9 @@ SKSE_PLUGIN_QUERY(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 SKSE_PLUGIN_LOAD(const SKSE::LoadInterface* a_skse)
 {
 	SKSE::Init(a_skse, { .log = true,
-						   .logName = Version::PROJECT.data(), .trampoline = true, .trampolineSize = 14*2 });
+						   .logName = Version::PROJECT.data(),
+						   .trampoline = true,
+						   .trampolineSize = 14 * 2 });
 
 	auto runtimeVersion = a_skse->RuntimeVersion();
 
