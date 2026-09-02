@@ -145,21 +145,8 @@ public:
 private:
 	struct detail
 	{
-		static bool is_empty(const RE::TESObjectREFRPtr& a_object)
-		{
-			std::int32_t inventoryCount = -1;
-			if (auto ashPile = a_object->extraList.GetAshPileRef().get()) {
-				inventoryCount = ashPile->GetInventoryItemCount();
-			} else {
-				inventoryCount = a_object->GetInventoryItemCount();
-			}
-			return inventoryCount == 0 ? a_object->IsNot(RE::FormType::ActorCharacter) || a_object->IsDead() : false;
-		}
-		static bool is_owned(const RE::TESObjectREFRPtr& a_object)
-		{
-			const auto base = a_object->GetBaseObject();
-			return base && base->Is(RE::FormType::Furniture) && a_object->GetOwner() && a_object->IsOffLimits();
-		}
+		static bool is_empty(const RE::TESObjectREFRPtr& a_object);
+		static bool is_owned(const RE::TESObjectREFRPtr& a_object);
 	};
 
 	static constexpr auto path = R"(Data\SKSE\Plugins\po3_SimpleActivateSKSE.ini)"sv;

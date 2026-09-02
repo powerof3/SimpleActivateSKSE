@@ -1,5 +1,22 @@
 #include "Settings.h"
 
+bool Settings::detail::is_empty(const RE::TESObjectREFRPtr& a_object)
+{
+	std::int32_t inventoryCount = -1;
+	if (auto ashPile = a_object->extraList.GetAshPileRef().get()) {
+		inventoryCount = ashPile->GetInventoryItemCount();
+	} else {
+		inventoryCount = a_object->GetInventoryItemCount();
+	}
+	return inventoryCount == 0 ? a_object->IsNot(RE::FormType::ActorCharacter) || a_object->IsDead() : false;
+}
+
+bool Settings::detail::is_owned(const RE::TESObjectREFRPtr& a_object)
+{
+	const auto base = a_object->GetBaseObject();
+	return base && base->Is(RE::FormType::Furniture) && a_object->GetOwner() && a_object->IsCrimeToActivate();
+}
+
 bool Settings::LoadSettings()
 {
 	UpdateSettings(path.data());
@@ -96,6 +113,9 @@ const Settings::Color* Settings::GetColor(const RE::TESObjectREFRPtr& a_object, 
 		return &empty.color;
 	}
 	if (a_object->IsLocked()) {
+		if (a_object->IsCrimeToActivate()) {
+			return &steal;
+		}
 		return &locked.color;
 	}
 

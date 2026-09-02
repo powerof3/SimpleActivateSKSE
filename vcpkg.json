@@ -1,6 +1,6 @@
 {
   "name": "simpleactivateskse",
-  "version-string": "1.4.2",
+  "version-string": "1.5.0",
   "description": "SKSE plugin that streamlines activate prompts",
   "homepage": "",
   "license": "GPL-3.0-or-later",
